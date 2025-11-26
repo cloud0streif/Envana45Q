@@ -4,7 +4,7 @@ services:
   # PostgreSQL with TimescaleDB extension for time-series sensor data
   timescaledb:
     image: timescale/timescaledb:latest-pg15
-    container_name: ccs-timescaledb
+    container_name: envana45q-timescaledb
     ports:
       - "5432:5432"
     environment:
@@ -15,38 +15,19 @@ services:
       - timescaledb_data:/var/lib/postgresql/data
       - ./database/init:/docker-entrypoint-initdb.d
     networks:
-      - ccs-network
+      - envana45q-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ccs_user -d ccs_platform"]
       interval: 10s
       timeout: 5s
       retries: 5
 
-  # MQTT Broker for real-time sensor data streaming
-  mosquitto:
-    image: eclipse-mosquitto:2
-    container_name: ccs-mosquitto
-    ports:
-      - "1883:1883"  # MQTT
-      - "9001:9001"  # WebSocket
-    volumes:
-      - ./mosquitto/config:/mosquitto/config
-      - ./mosquitto/data:/mosquitto/data
-      - ./mosquitto/log:/mosquitto/log
-    networks:
-      - ccs-network
-    healthcheck:
-      test: ["CMD-SHELL", "mosquitto_sub -t '$$SYS/#' -C 1 -i healthcheck -W 3"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
   # FastAPI Backend
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: ccs-backend
+    container_name: envana45q-backend
     ports:
       - "8000:8000"
     environment:
@@ -54,8 +35,6 @@ services:
       - PORT=8000
       - DEBUG=true
       - DATABASE_URL=postgresql+asyncpg://ccs_user:ccs_password@timescaledb:5432/ccs_platform
-      - MQTT_BROKER_HOST=mosquitto
-      - MQTT_BROKER_PORT=1883
       - CORS_ORIGINS=http://localhost:5173,http://localhost:3000
       - JWT_SECRET_KEY=your-secret-key-change-in-production
       - JWT_ALGORITHM=HS256
@@ -67,60 +46,35 @@ services:
     depends_on:
       timescaledb:
         condition: service_healthy
-      mosquitto:
-        condition: service_healthy
     networks:
-      - ccs-network
+      - envana45q-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
       interval: 30s
       timeout: 10s
       retries: 3
 
-  # Data Producer (BME280 sensor simulator or real sensor)
-  data-producer:
-    build:
-      context: ./data-producer
-      dockerfile: Dockerfile
-    container_name: ccs-data-producer
-    depends_on:
-      backend:
-        condition: service_healthy
-      mosquitto:
-        condition: service_healthy
-    environment:
-      - SERVER_URL=http://backend:8000
-      - MQTT_BROKER_HOST=mosquitto
-      - MQTT_BROKER_PORT=1883
-      - DEVICE_ID=bme280_docker_001
-      - WELL_ID=1
-      - INTERVAL_SECONDS=10
-      - USE_REAL_SENSOR=false
-    networks:
-      - ccs-network
-
   # React Frontend
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: ccs-frontend
+    container_name: envana45q-frontend
     ports:
       - "5173:5173"
     environment:
       - VITE_API_BASE_URL=http://localhost:8000
-      - VITE_MQTT_WS_URL=ws://localhost:9001
     depends_on:
       - backend
     volumes:
       - ./frontend/src:/app/src
     networks:
-      - ccs-network
+      - envana45q-network
 
 volumes:
   timescaledb_data:
     driver: local
 
 networks:
-  ccs-network:
+  envana45q-network:
     driver: bridge

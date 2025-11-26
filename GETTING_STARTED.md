@@ -2,12 +2,15 @@
 
 ## Quick Start (Easiest)
 
-Run the automated setup script:
+Use Docker Compose to start all services:
 ```bash
-./start.sh
+docker-compose up --build
 ```
 
-This will check prerequisites and set up all components. Then follow the on-screen instructions to start each service.
+This starts:
+- **Backend API**: http://localhost:8000
+- **Frontend Dashboard**: http://localhost:5173
+- **TimescaleDB**: localhost:5432
 
 ## Manual Setup
 
@@ -23,19 +26,7 @@ uvicorn src.main:app --reload --port 8000
 
 Verify at: http://localhost:8000/docs
 
-### 2. Start the Data Producer (Terminal 2)
-
-```bash
-cd data-producer
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install httpx pydantic-settings python-dotenv
-python -m src.main
-```
-
-You should see sensor readings being generated and sent every 10 seconds.
-
-### 3. Start the Frontend (Terminal 3)
+### 2. Start the Frontend (Terminal 2)
 
 ```bash
 cd frontend
@@ -49,81 +40,26 @@ Open: http://localhost:5173
 
 ### Frontend Interface
 
-1. **Status Bar**: Shows backend connection status
-2. **Sensor Trends Chart**: Real-time line charts for temperature, humidity, and pressure
-3. **Processing Control**: Panel to run data processing algorithms
-4. **Raw Sensor Data**: Table of recent sensor readings (auto-refreshes every 10s)
-5. **Processed Results**: Shows results from processing jobs
+1. **Navigation**: Home, Capture, Transport, Sequestration sections
+2. **Dashboard Views**: Various monitoring dashboards for CCS operations
+3. **Real-time Charts**: Visualizations for sensor data and metrics
+4. **Interactive Maps**: Transport network and facility locations
 
 ### Testing the System
 
-1. **Wait 30 seconds** for data to accumulate
-2. In the "Data Processing" panel:
-   - Select "average" processor
-   - Set time range to "1 hour"
-   - Click "Run Processing"
-3. View the results in the "Processed Results" section
-4. Watch the charts update in real-time
-
-## Using Docker (Alternative)
-
-If you have Docker installed:
-
-```bash
-docker-compose up --build
-```
-
-This starts all three services automatically:
-- Backend: http://localhost:8000
-- Frontend: http://localhost:5173
-
-## Troubleshooting
-
-### Backend won't start
-- Check if Python 3.11+ is installed: `python3 --version`
-- Check if port 8000 is available: `lsof -i :8000`
-
-### Data producer can't connect
-- Make sure backend is running first
-- Check backend logs for errors
-
-### Frontend shows "Disconnected"
-- Verify backend is running at http://localhost:8000/api/v1/health
-- Check browser console for CORS errors
-
-### No data showing
-- Wait 10-30 seconds for data to accumulate
-- Check data producer is running and sending data
-- Check backend logs for errors
-
-## Next Steps
-
-1. **Explore the API**: Visit http://localhost:8000/docs
-2. **Read the docs**:
-   - [API Documentation](docs/API.md)
-   - [Architecture](docs/ARCHITECTURE.md)
-   - [Deployment Guide](docs/DEPLOYMENT.md)
-3. **Add features**:
-   - Implement new processors (min/max, moving average)
-   - Add authentication
-   - Connect real BME280 sensor
+1. Navigate through the different dashboard sections
+2. Explore the capture facilities, transport pipelines, and injection sites
+3. View mock sensor data and metrics
+4. Test data processing features
 
 ## Configuration
 
 ### Backend (.env)
 ```bash
-DATABASE_URL=sqlite+aiosqlite:///./sensor_data.db
+DATABASE_URL=postgresql+asyncpg://ccs_user:ccs_password@localhost:5432/ccs_platform
 PORT=8000
-CORS_ORIGINS=http://localhost:5173
-```
-
-### Data Producer (.env)
-```bash
-SERVER_URL=http://localhost:8000
-DEVICE_ID=bme280_fake_001
-INTERVAL_SECONDS=10
-TEMP_MIN=18.0
-TEMP_MAX=28.0
+DEBUG=true
+CORS_ORIGINS=http://localhost:5173,http://localhost:3000
 ```
 
 ### Frontend (.env)
@@ -159,6 +95,7 @@ npm run type-check
 ```bash
 cd backend
 # Backend runs from source, no build needed
+# Use gunicorn or uvicorn for production deployment
 ```
 
 **Frontend:**
@@ -168,8 +105,37 @@ npm run build
 # Output in dist/
 ```
 
-## Support
+## Deployment
 
-- Check [bootstrap.md](docs/bootstrap.md) for detailed architecture
-- Check [DEPLOYMENT.md](docs/DEPLOYMENT.md) for production setup
-- Check [API.md](docs/API.md) for API reference
+For production deployment instructions, see:
+- [DEPLOYMENT.md](docs/DEPLOYMENT.md) - Comprehensive deployment guide
+- [API.md](docs/API.md) - API reference
+
+## Troubleshooting
+
+### Backend won't start
+- Check if Python 3.11+ is installed: `python3 --version`
+- Check if port 8000 is available: `lsof -i :8000`
+- Verify database connection in .env file
+
+### Frontend shows errors
+- Verify backend is running at http://localhost:8000/api/v1/health
+- Check browser console for CORS errors
+- Ensure VITE_API_BASE_URL is correctly set
+
+### Database issues
+- Ensure TimescaleDB container is running: `docker ps`
+- Check database logs: `docker logs envana45q-timescaledb`
+- Verify connection string in backend/.env
+
+## Next Steps
+
+1. **Explore the API**: Visit http://localhost:8000/docs
+2. **Read the docs**:
+   - [API Documentation](docs/API.md)
+   - [Architecture](docs/ARCHITECTURE.md)
+   - [Frontend Guide](docs/frontend.md)
+3. **Customize**:
+   - Add new dashboard views
+   - Customize visualizations
+   - Implement authentication
