@@ -4,13 +4,16 @@ import { CheckCircleIcon, XCircleIcon, ArrowUpTrayIcon, CalendarIcon, DocumentTe
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { format } from 'date-fns'
 import { pumpStationDocuments, PUMP_STATION_DEPENDENCIES, isTransportMeasurementValid, generatePumpStationTimeSeries, calculateValidUntil, type TransportComplianceDocument } from '../lib/mock-data/transport-dashboard-data'
-import { TransportNetworkMap } from '../components/TransportNetworkMap'
 import { Modal } from '../components/modals/Modal'
 
 type TimePeriod = 'day' | 'week' | 'month' | '6months' | 'year' | 'ytd' | 'custom'
 type DataSource = 'scada' | 'manual'
 
-export function PumpStationDashboard() {
+interface PumpStationDashboardProps {
+  embedded?: boolean
+}
+
+export function PumpStationDashboard({ embedded = false }: PumpStationDashboardProps = {}) {
   const navigate = useNavigate()
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>('ytd')
   const [dataSource, setDataSource] = useState<DataSource>('scada')
@@ -21,10 +24,12 @@ export function PumpStationDashboard() {
   const [isReportsModalOpen, setIsReportsModalOpen] = useState(false)
   const [isExportModalOpen, setIsExportModalOpen] = useState(false)
 
-  // Scroll to top when component mounts (useLayoutEffect runs before paint)
+  // Scroll to top when component mounts (only if not embedded)
   useLayoutEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
-  }, [])
+    if (!embedded) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+    }
+  }, [embedded])
 
   const chartData = useMemo(() => {
     let days = 7
@@ -116,10 +121,12 @@ export function PumpStationDashboard() {
           <h1 className="text-3xl font-bold text-gray-900">Pump Station #1</h1>
           <p className="text-gray-600 mt-1">Intermediate compression/pumping</p>
         </div>
-        <div className="flex space-x-3">
-          <button onClick={() => navigate('/transport')} className="text-envana-coral hover:text-envana-coral-dark font-medium">← Back</button>
-          <button onClick={() => navigate('/')} className="text-envana-coral hover:text-envana-coral-dark font-medium">🏠 Home</button>
-        </div>
+        {!embedded && (
+          <div className="flex space-x-3">
+            <button onClick={() => navigate('/transport')} className="text-envana-coral hover:text-envana-coral-dark font-medium">← Back</button>
+            <button onClick={() => navigate('/')} className="text-envana-coral hover:text-envana-coral-dark font-medium">🏠 Home</button>
+          </div>
+        )}
       </div>
 
       {/* Time Period Selector */}
@@ -220,33 +227,25 @@ export function PumpStationDashboard() {
         </div>
       </div>
 
-      {/* Chart and Map */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Chart */}
-        <div className="lg:col-span-2 bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Chart of Data Over Selected Period</h3>
-          <ResponsiveContainer width="100%" height={400}>
-            <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="displayTime" tick={{ fontSize: 12 }} angle={-45} textAnchor="end" height={80} />
-              <YAxis yAxisId="left" tick={{ fontSize: 12 }} label={{ value: 'bar / °C', angle: -90, position: 'insideLeft' }} />
-              <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12 }} label={{ value: 'g/cm³', angle: 90, position: 'insideRight' }} />
-              <Tooltip contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', borderRadius: '8px' }} />
-              <Legend wrapperStyle={{ paddingTop: '20px' }} iconType="line" />
-              <Line yAxisId="left" type="monotone" dataKey="inlet_pressure" stroke="#3B82F6" name="Inlet Pressure (bar)" strokeWidth={2} dot={false} />
-              <Line yAxisId="left" type="monotone" dataKey="outlet_pressure" stroke="#10B981" name="Outlet Pressure (bar)" strokeWidth={2} dot={false} />
-              <Line yAxisId="left" type="monotone" dataKey="inlet_temp" stroke="#F59E0B" name="Inlet Temp (°C)" strokeWidth={2} dot={false} />
-              <Line yAxisId="left" type="monotone" dataKey="outlet_temp" stroke="#EF4444" name="Outlet Temp (°C)" strokeWidth={2} dot={false} />
-              <Line yAxisId="right" type="monotone" dataKey="inlet_density" stroke="#8B5CF6" name="Inlet Density" strokeWidth={2} dot={false} />
-              <Line yAxisId="right" type="monotone" dataKey="outlet_density" stroke="#EC4899" name="Outlet Density" strokeWidth={2} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Network Map */}
-        <div className="lg:col-span-1">
-          <TransportNetworkMap highlightNode="pump" />
-        </div>
+      {/* Chart */}
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Chart of Data Over Selected Period</h3>
+        <ResponsiveContainer width="100%" height={400}>
+          <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="displayTime" tick={{ fontSize: 12 }} angle={-45} textAnchor="end" height={80} />
+            <YAxis yAxisId="left" tick={{ fontSize: 12 }} label={{ value: 'bar / °C', angle: -90, position: 'insideLeft' }} />
+            <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12 }} label={{ value: 'g/cm³', angle: 90, position: 'insideRight' }} />
+            <Tooltip contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', borderRadius: '8px' }} />
+            <Legend wrapperStyle={{ paddingTop: '20px' }} iconType="line" />
+            <Line yAxisId="left" type="monotone" dataKey="inlet_pressure" stroke="#3B82F6" name="Inlet Pressure (bar)" strokeWidth={2} dot={false} />
+            <Line yAxisId="left" type="monotone" dataKey="outlet_pressure" stroke="#10B981" name="Outlet Pressure (bar)" strokeWidth={2} dot={false} />
+            <Line yAxisId="left" type="monotone" dataKey="inlet_temp" stroke="#F59E0B" name="Inlet Temp (°C)" strokeWidth={2} dot={false} />
+            <Line yAxisId="left" type="monotone" dataKey="outlet_temp" stroke="#EF4444" name="Outlet Temp (°C)" strokeWidth={2} dot={false} />
+            <Line yAxisId="right" type="monotone" dataKey="inlet_density" stroke="#8B5CF6" name="Inlet Density" strokeWidth={2} dot={false} />
+            <Line yAxisId="right" type="monotone" dataKey="outlet_density" stroke="#EC4899" name="Outlet Density" strokeWidth={2} dot={false} />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
 
       {/* Current Compliance Documents */}

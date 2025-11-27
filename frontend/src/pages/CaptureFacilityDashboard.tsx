@@ -32,7 +32,12 @@ import { Modal } from '../components/modals/Modal'
 type TimePeriod = 'day' | 'week' | 'month' | '6months' | 'year' | 'ytd' | 'custom'
 type DataSource = 'scada' | 'manual'
 
-export function CaptureFacilityDashboard() {
+interface CaptureFacilityDashboardProps {
+  facilityId?: number
+  embedded?: boolean
+}
+
+export function CaptureFacilityDashboard({ facilityId: propFacilityId, embedded = false }: CaptureFacilityDashboardProps = {}) {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
 
@@ -45,13 +50,15 @@ export function CaptureFacilityDashboard() {
   const [isReportsModalOpen, setIsReportsModalOpen] = useState(false)
   const [isExportModalOpen, setIsExportModalOpen] = useState(false)
 
-  const facilityId = id || '1'
+  const facilityId = propFacilityId?.toString() || id || '1'
   const facility = captureFacilities.find(f => f.facility_id === parseInt(facilityId)) || captureFacilities[0]
 
-  // Scroll to top when component mounts (useLayoutEffect runs before paint)
+  // Scroll to top when component mounts (only if not embedded)
   useLayoutEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
-  }, [])
+    if (!embedded) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+    }
+  }, [embedded])
 
   // Generate chart data based on selected period
   const chartData = useMemo(() => {
@@ -176,20 +183,22 @@ export function CaptureFacilityDashboard() {
           <h1 className="text-3xl font-bold text-gray-900">{facility.facility_name} - Dashboard</h1>
           <p className="text-gray-600 mt-1">Real-time capture facility monitoring and compliance tracking</p>
         </div>
-        <div className="flex space-x-3">
-          <button
-            onClick={() => navigate('/capture')}
-            className="text-envana-teal hover:text-envana-teal-dark font-medium"
-          >
-            ← Back to Capture
-          </button>
-          <button
-            onClick={() => navigate('/')}
-            className="text-envana-teal hover:text-envana-teal-dark font-medium"
-          >
-            🏠 Home
-          </button>
-        </div>
+        {!embedded && (
+          <div className="flex space-x-3">
+            <button
+              onClick={() => navigate('/capture')}
+              className="text-envana-teal hover:text-envana-teal-dark font-medium"
+            >
+              ← Back to Capture
+            </button>
+            <button
+              onClick={() => navigate('/')}
+              className="text-envana-teal hover:text-envana-teal-dark font-medium"
+            >
+              🏠 Home
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Facility Info */}

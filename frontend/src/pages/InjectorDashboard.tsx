@@ -31,7 +31,12 @@ import { Modal } from '../components/modals/Modal'
 type TimePeriod = 'day' | 'week' | 'month' | '6months' | 'year' | 'ytd' | 'custom'
 type DataSource = 'scada' | 'manual'
 
-export function InjectorDashboard() {
+interface InjectorDashboardProps {
+  wellId?: number
+  embedded?: boolean
+}
+
+export function InjectorDashboard({ wellId: wellIdProp, embedded = false }: InjectorDashboardProps = {}) {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
 
@@ -44,13 +49,15 @@ export function InjectorDashboard() {
   const [isReportsModalOpen, setIsReportsModalOpen] = useState(false)
   const [isExportModalOpen, setIsExportModalOpen] = useState(false)
 
-  const wellId = id || '1'
+  const wellId = wellIdProp?.toString() || id || '1'
   const wellName = `Injector Well #${wellId}`
 
-  // Scroll to top when component mounts (useLayoutEffect runs before paint)
+  // Scroll to top when component mounts (only if not embedded)
   useLayoutEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
-  }, [])
+    if (!embedded) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+    }
+  }, [embedded])
 
   // Generate chart data based on selected period
   const chartData = useMemo(() => {
@@ -184,23 +191,25 @@ export function InjectorDashboard() {
           <h1 className="text-3xl font-bold text-gray-900">{wellName} - IoT Dashboard</h1>
           <p className="text-gray-600 mt-1">Real-time injection monitoring and compliance tracking</p>
         </div>
-        <div className="flex space-x-3">
-          <button
-            onClick={() => navigate('/sequestration')}
-            className="text-envana-coral hover:text-envana-coral-dark font-medium"
-          >
-            ← Back
-          </button>
-          <button
-            onClick={() => navigate('/')}
-            className="text-envana-coral hover:text-envana-coral-dark font-medium"
-          >
-            🏠 Home
-          </button>
-          <div className="text-sm text-gray-600 px-3 py-2 bg-gray-100 rounded-md">
-            Admin User
+        {!embedded && (
+          <div className="flex space-x-3">
+            <button
+              onClick={() => navigate('/sequestration')}
+              className="text-envana-coral hover:text-envana-coral-dark font-medium"
+            >
+              ← Back
+            </button>
+            <button
+              onClick={() => navigate('/')}
+              className="text-envana-coral hover:text-envana-coral-dark font-medium"
+            >
+              🏠 Home
+            </button>
+            <div className="text-sm text-gray-600 px-3 py-2 bg-gray-100 rounded-md">
+              Admin User
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Time Period Selector */}

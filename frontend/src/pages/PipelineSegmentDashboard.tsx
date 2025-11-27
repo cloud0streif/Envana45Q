@@ -4,16 +4,20 @@ import { CheckCircleIcon, XCircleIcon, ArrowUpTrayIcon, CalendarIcon, DocumentTe
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { format } from 'date-fns'
 import { pipelineDocuments, PIPELINE_DEPENDENCIES, isTransportMeasurementValid, generatePipelineTimeSeries, calculateValidUntil, type TransportComplianceDocument } from '../lib/mock-data/transport-dashboard-data'
-import { TransportNetworkMap } from '../components/TransportNetworkMap'
 import { Modal } from '../components/modals/Modal'
 
 type TimePeriod = 'day' | 'week' | 'month' | '6months' | 'year' | 'ytd' | 'custom'
 type DataSource = 'scada' | 'manual'
 
-export function PipelineSegmentDashboard() {
-  const { segmentId } = useParams<{ segmentId: string }>()
+interface PipelineSegmentDashboardProps {
+  segmentId?: string
+  embedded?: boolean
+}
+
+export function PipelineSegmentDashboard({ segmentId: propSegmentId, embedded = false }: PipelineSegmentDashboardProps = {}) {
+  const { segmentId: paramSegmentId } = useParams<{ segmentId: string }>()
   const navigate = useNavigate()
-  const segmentNumber = segmentId || '1'
+  const segmentNumber = propSegmentId || paramSegmentId || '1'
 
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>('ytd')
   const [dataSource, setDataSource] = useState<DataSource>('scada')
@@ -24,10 +28,12 @@ export function PipelineSegmentDashboard() {
   const [isReportsModalOpen, setIsReportsModalOpen] = useState(false)
   const [isExportModalOpen, setIsExportModalOpen] = useState(false)
 
-  // Scroll to top when component mounts (useLayoutEffect runs before paint)
+  // Scroll to top when component mounts (only if not embedded)
   useLayoutEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
-  }, [])
+    if (!embedded) {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+    }
+  }, [embedded])
 
   const chartData = useMemo(() => {
     let days = 7
@@ -115,10 +121,12 @@ export function PipelineSegmentDashboard() {
           <h1 className="text-3xl font-bold text-gray-900">Pipeline Segment #{segmentNumber}</h1>
           <p className="text-gray-600 mt-1">Pipeline transportation monitoring (53 miles)</p>
         </div>
-        <div className="flex space-x-3">
-          <button onClick={() => navigate('/transport')} className="text-envana-coral hover:text-envana-coral-dark font-medium">← Back</button>
-          <button onClick={() => navigate('/')} className="text-envana-coral hover:text-envana-coral-dark font-medium">🏠 Home</button>
-        </div>
+        {!embedded && (
+          <div className="flex space-x-3">
+            <button onClick={() => navigate('/transport')} className="text-envana-coral hover:text-envana-coral-dark font-medium">← Back</button>
+            <button onClick={() => navigate('/')} className="text-envana-coral hover:text-envana-coral-dark font-medium">🏠 Home</button>
+          </div>
+        )}
       </div>
 
       {/* Pipeline Info */}
@@ -187,30 +195,22 @@ export function PipelineSegmentDashboard() {
         </div>
       </div>
 
-      {/* Chart and Map */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Chart */}
-        <div className="lg:col-span-2 bg-white rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Sensor Measurements Over Selected Period</h3>
-          <ResponsiveContainer width="100%" height={400}>
-            <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="displayTime" tick={{ fontSize: 12 }} angle={-45} textAnchor="end" height={80} />
-              <YAxis yAxisId="left" tick={{ fontSize: 12 }} label={{ value: '°C / mm/s', angle: -90, position: 'insideLeft' }} />
-              <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12 }} label={{ value: 'ppm', angle: 90, position: 'insideRight' }} />
-              <Tooltip contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', borderRadius: '8px' }} />
-              <Legend wrapperStyle={{ paddingTop: '20px' }} iconType="line" />
-              <Line yAxisId="left" type="monotone" dataKey="temperature" stroke="#EF4444" name="Temperature (°C)" strokeWidth={2} dot={false} />
-              <Line yAxisId="right" type="monotone" dataKey="emission" stroke="#10B981" name="Emission (ppm)" strokeWidth={2} dot={false} />
-              <Line yAxisId="left" type="monotone" dataKey="vibration" stroke="#8B5CF6" name="Vibration (mm/s)" strokeWidth={2} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-
-        {/* Network Map */}
-        <div className="lg:col-span-1">
-          <TransportNetworkMap highlightNode={segmentNumber === '1' ? 'segment1' : 'segment2'} />
-        </div>
+      {/* Chart */}
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">Sensor Measurements Over Selected Period</h3>
+        <ResponsiveContainer width="100%" height={400}>
+          <LineChart data={chartData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="displayTime" tick={{ fontSize: 12 }} angle={-45} textAnchor="end" height={80} />
+            <YAxis yAxisId="left" tick={{ fontSize: 12 }} label={{ value: '°C / mm/s', angle: -90, position: 'insideLeft' }} />
+            <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 12 }} label={{ value: 'ppm', angle: 90, position: 'insideRight' }} />
+            <Tooltip contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', borderRadius: '8px' }} />
+            <Legend wrapperStyle={{ paddingTop: '20px' }} iconType="line" />
+            <Line yAxisId="left" type="monotone" dataKey="temperature" stroke="#EF4444" name="Temperature (°C)" strokeWidth={2} dot={false} />
+            <Line yAxisId="right" type="monotone" dataKey="emission" stroke="#10B981" name="Emission (ppm)" strokeWidth={2} dot={false} />
+            <Line yAxisId="left" type="monotone" dataKey="vibration" stroke="#8B5CF6" name="Vibration (mm/s)" strokeWidth={2} dot={false} />
+          </LineChart>
+        </ResponsiveContainer>
       </div>
 
       {/* Compliance Documents - Current Only */}

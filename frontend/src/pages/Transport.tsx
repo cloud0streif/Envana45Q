@@ -1,6 +1,5 @@
-import { useNavigate } from 'react-router-dom'
-import { useMemo } from 'react'
-import { transportNodes, getNodeRoute } from '../lib/mock-data/transport-nodes'
+import { useState, useMemo } from 'react'
+import { transportNodes, type TransportNode } from '../lib/mock-data/transport-nodes'
 import { generateInjectionSiteOutletTimeSeries } from '../lib/mock-data/transport-dashboard-data'
 import {
   CheckCircleIcon,
@@ -8,14 +7,34 @@ import {
   ChartBarIcon,
   SignalIcon,
 } from '@heroicons/react/24/outline'
+import { CapturePlantOutletDashboard } from './CapturePlantOutletDashboard'
+import { PipelineSegmentDashboard } from './PipelineSegmentDashboard'
+import { PumpStationDashboard } from './PumpStationDashboard'
+import { InjectionSiteOutletDashboard } from './InjectionSiteOutletDashboard'
+import { TransportNetworkMap } from '../components/TransportNetworkMap'
 
 export function Transport() {
-  const navigate = useNavigate()
+  const [selectedNode, setSelectedNode] = useState<TransportNode | null>(null)
 
-  const handleNodeClick = (nodeId: number) => {
-    const node = transportNodes.find(n => n.node_id === nodeId)
-    if (node) {
-      navigate(getNodeRoute(node))
+  const handleNodeClick = (node: TransportNode) => {
+    setSelectedNode(node)
+  }
+
+  // Map selected node to highlight value for the network map
+  const getHighlightNode = (): 'capture' | 'segment1' | 'pump' | 'segment2' | 'injection' | undefined => {
+    if (!selectedNode) return undefined
+
+    switch (selectedNode.node_type) {
+      case 'capture_plant_outlet':
+        return 'capture'
+      case 'pipeline_segment':
+        return selectedNode.node_order === 2 ? 'segment1' : 'segment2'
+      case 'pump_station':
+        return 'pump'
+      case 'injection_site_outlet':
+        return 'injection'
+      default:
+        return undefined
     }
   }
 
@@ -28,6 +47,27 @@ export function Transport() {
     return Math.round(total)
   }, [])
 
+  const renderDashboard = () => {
+    if (!selectedNode) return null
+
+    const commonProps = { embedded: true }
+
+    switch (selectedNode.node_type) {
+      case 'capture_plant_outlet':
+        return <CapturePlantOutletDashboard {...commonProps} />
+      case 'pipeline_segment':
+        // Use node_order to determine segment number (node_order 2 = segment 1, node_order 4 = segment 2)
+        const segmentNumber = selectedNode.node_order === 2 ? '1' : '2'
+        return <PipelineSegmentDashboard segmentId={segmentNumber} {...commonProps} />
+      case 'pump_station':
+        return <PumpStationDashboard {...commonProps} />
+      case 'injection_site_outlet':
+        return <InjectionSiteOutletDashboard {...commonProps} />
+      default:
+        return null
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -38,7 +78,7 @@ export function Transport() {
         </div>
         <div className="flex space-x-3">
           <button
-            onClick={() => navigate('/')}
+            onClick={() => window.history.back()}
             className="text-envana-coral hover:text-envana-coral-dark font-medium"
           >
             ← Back to Home
@@ -69,116 +109,7 @@ export function Transport() {
         </div>
       </div>
 
-      {/* Transportation Network Flow */}
-      <div className="bg-white rounded-lg shadow-sm p-8 border border-gray-200">
-        <h2 className="text-2xl font-bold text-envana-brown mb-6">CO₂ Transportation Network</h2>
-        <p className="text-gray-600 mb-6">Real-time status of all transportation nodes</p>
-
-        {/* Network Nodes */}
-        <div className="space-y-4">
-          {transportNodes.map((node, index) => (
-            <div key={node.node_id}>
-              {/* Node Card */}
-              <div
-                className={`border-2 rounded-lg p-6 transition-all cursor-pointer ${
-                  node.status === 'operational'
-                    ? 'border-envana-teal hover:border-envana-teal-dark hover:shadow-lg bg-white'
-                    : node.status === 'warning'
-                    ? 'border-yellow-200 hover:border-yellow-400 bg-yellow-50'
-                    : 'border-red-200 hover:border-red-400 bg-red-50'
-                }`}
-                onClick={() => handleNodeClick(node.node_id)}
-              >
-                <div className="flex items-center justify-between">
-                  {/* Node Info */}
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-3 mb-3">
-                      <div
-                        className={`rounded-full p-2 ${
-                          node.status === 'operational' ? 'bg-envana-sidebar' : 'bg-yellow-100'
-                        }`}
-                      >
-                        {node.node_type === 'pipeline_segment' ? (
-                          <SignalIcon className="h-5 w-5 text-envana-teal" />
-                        ) : node.node_type === 'pump_station' ? (
-                          <ChartBarIcon className="h-5 w-5 text-envana-teal" />
-                        ) : (
-                          <CheckCircleIcon className="h-5 w-5 text-envana-teal" />
-                        )}
-                      </div>
-                      <div>
-                        <h3 className="text-lg font-bold text-envana-brown">{node.node_name}</h3>
-                        <p className="text-xs text-gray-500">
-                          {node.node_type === 'capture_plant_outlet'
-                            ? 'CO₂ exits capture facility'
-                            : node.node_type === 'pipeline_segment'
-                            ? `Pipeline transportation (${node.current_metrics.segment_length?.value} ${node.current_metrics.segment_length?.unit})`
-                            : node.node_type === 'pump_station'
-                            ? 'Intermediate compression/pumping'
-                            : 'CO₂ arrives at sequestration site'}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Metrics */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                      {Object.entries(node.current_metrics).map(([key, metric]) => {
-                        // Skip segment length and diameter for display in metrics grid
-                        if (key === 'segment_length' || key === 'diameter') return null
-
-                        return (
-                          <div key={key} className="bg-white rounded-lg p-3 border border-gray-200">
-                            <p className="text-xs text-gray-500 mb-1">
-                              {key === 'mass_rate'
-                                ? 'Current Mass Rate'
-                                : key === 'pressure'
-                                ? 'Current Pressure'
-                                : key === 'inlet_pressure'
-                                ? 'Inlet Pressure'
-                                : key === 'outlet_pressure'
-                                ? 'Outlet Pressure'
-                                : key === 'peak_emission_24hr'
-                                ? 'Peak Emission (24hr)'
-                                : key}
-                            </p>
-                            <div className="flex items-baseline space-x-1">
-                              <p className="text-lg font-bold text-envana-brown">{metric.value.toFixed(2)}</p>
-                              <p className="text-xs text-gray-600">{metric.unit}</p>
-                              {metric.status && metric.status === 'normal' && (
-                                <span className="text-envana-teal ml-2">✅</span>
-                              )}
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Click to View Button */}
-                  <button
-                    className={`ml-6 px-6 py-3 rounded-lg text-white font-medium transition-colors ${
-                      node.status === 'operational'
-                        ? 'bg-envana-coral hover:bg-envana-coral-dark'
-                        : 'bg-yellow-600 hover:bg-yellow-700'
-                    }`}
-                  >
-                    View Dashboard
-                  </button>
-                </div>
-              </div>
-
-              {/* Flow Arrow */}
-              {index < transportNodes.length - 1 && (
-                <div className="flex justify-center py-2">
-                  <ArrowDownIcon className="h-6 w-6 text-gray-400" />
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* System Information */}
+      {/* Transportation System Information - Moved Above */}
       <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
         <h3 className="text-lg font-bold text-envana-brown mb-4">TRANSPORTATION SYSTEM INFORMATION</h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -199,6 +130,89 @@ export function Transport() {
           </div>
         </div>
       </div>
+
+      {/* Transportation Network Map */}
+      <TransportNetworkMap highlightNode={getHighlightNode()} />
+
+      {/* Transportation Network Flow */}
+      <div className="bg-white rounded-lg shadow-sm p-8 border border-gray-200">
+        <h2 className="text-2xl font-bold text-envana-brown mb-6">CO₂ TRANSPORTATION NETWORK</h2>
+        <p className="text-gray-600 mb-6">Select a transportation node to view its performance dashboard:</p>
+
+        {/* Network Nodes - Compact Row Layout */}
+        <div className="grid grid-cols-5 gap-4">
+          {transportNodes.map((node) => (
+            <div
+              key={node.node_id}
+              className={`border-2 rounded-lg p-4 transition-all cursor-pointer ${
+                selectedNode?.node_id === node.node_id
+                  ? 'border-envana-coral bg-envana-sidebar shadow-lg'
+                  : node.status === 'operational'
+                  ? 'border-envana-teal hover:border-envana-teal-dark hover:shadow-lg bg-white'
+                  : node.status === 'warning'
+                  ? 'border-yellow-200 hover:border-yellow-400 bg-yellow-50'
+                  : 'border-red-200 hover:border-red-400 bg-red-50'
+              }`}
+              onClick={() => handleNodeClick(node)}
+            >
+              {/* Node Header */}
+              <div className="flex items-center space-x-2 mb-3">
+                <div
+                  className={`rounded-full p-1.5 ${
+                    node.status === 'operational' ? 'bg-envana-sidebar' : 'bg-yellow-100'
+                  }`}
+                >
+                  {node.node_type === 'pipeline_segment' ? (
+                    <SignalIcon className="h-4 w-4 text-envana-teal" />
+                  ) : node.node_type === 'pump_station' ? (
+                    <ChartBarIcon className="h-4 w-4 text-envana-teal" />
+                  ) : (
+                    <CheckCircleIcon className="h-4 w-4 text-envana-teal" />
+                  )}
+                </div>
+                <h3 className="text-sm font-bold text-envana-brown">{node.node_name}</h3>
+              </div>
+
+              {/* Metrics */}
+              <div className="space-y-2 text-xs">
+                {Object.entries(node.current_metrics).map(([key, metric]) => {
+                  // Skip segment length and diameter for display in metrics grid
+                  if (key === 'segment_length' || key === 'diameter') return null
+
+                  return (
+                    <div key={key} className="bg-white rounded p-2 border border-gray-200">
+                      <p className="text-gray-500 mb-0.5">
+                        {key === 'mass_rate'
+                          ? 'Mass Rate'
+                          : key === 'pressure'
+                          ? 'Pressure'
+                          : key === 'inlet_pressure'
+                          ? 'Inlet P'
+                          : key === 'outlet_pressure'
+                          ? 'Outlet P'
+                          : key === 'peak_emission_24hr'
+                          ? 'Peak Emission'
+                          : key}
+                      </p>
+                      <div className="flex items-baseline space-x-1">
+                        <p className="text-sm font-bold text-envana-brown">{metric.value.toFixed(2)}</p>
+                        <p className="text-xs text-gray-600">{metric.unit}</p>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Node Dashboard - shown when a node is selected */}
+      {selectedNode && (
+        <div className="bg-gray-50 rounded-lg p-8 border-2 border-envana-coral">
+          {renderDashboard()}
+        </div>
+      )}
 
       {/* System Documents */}
       <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">

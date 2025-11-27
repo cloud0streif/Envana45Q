@@ -45,7 +45,7 @@ export function Layout({ children }: LayoutProps) {
           <Link
             to="/"
             className={`block px-6 py-3 text-base font-medium transition-colors ${
-              isActive('/') || location.pathname === '/'
+              isActive('/') || isInSection(['/capture', '/transport', '/sequestration'])
                 ? 'text-orange-600 bg-orange-50'
                 : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
             }`}

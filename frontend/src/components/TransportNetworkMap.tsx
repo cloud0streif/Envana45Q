@@ -6,11 +6,11 @@ interface TransportNetworkMapProps {
 
 export function TransportNetworkMap({ highlightNode }: TransportNetworkMapProps) {
   return (
-    <div className="bg-gradient-to-br from-envana-sidebar to-envana-cream rounded-lg p-6 border-2 border-gray-200 h-full">
+    <div className="bg-gradient-to-br from-envana-sidebar to-envana-cream rounded-lg p-6 border-2 border-gray-200">
       <h3 className="text-sm font-semibold text-gray-700 mb-4">TRANSPORTATION NETWORK MAP</h3>
 
-      <div className="relative w-full h-full min-h-[350px]">
-        <svg viewBox="0 0 400 500" className="w-full h-full">
+      <div className="relative w-full h-[200px]">
+        <svg viewBox="0 0 800 200" className="w-full h-full">
           {/* Pipeline Route */}
           <defs>
             <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
@@ -20,42 +20,42 @@ export function TransportNetworkMap({ highlightNode }: TransportNetworkMapProps)
 
           {/* Segment 1: Capture Plant to Pump Station */}
           <line
-            x1="80"
-            y1="80"
-            x2="200"
-            y2="200"
+            x1="120"
+            y1="100"
+            x2="340"
+            y2="100"
             stroke={highlightNode === 'segment1' ? '#e57373' : '#9CA3AF'}
             strokeWidth={highlightNode === 'segment1' ? '6' : '4'}
             strokeDasharray={highlightNode === 'segment1' ? '0' : '8,4'}
             markerEnd="url(#arrowhead)"
           />
-          <text x="120" y="130" fill="#374151" fontSize="12" fontWeight="bold">
+          <text x="200" y="80" fill="#374151" fontSize="12" fontWeight="bold" textAnchor="middle">
             Pipeline #1
           </text>
-          <text x="125" y="145" fill="#6B7280" fontSize="11">
+          <text x="200" y="95" fill="#6B7280" fontSize="11" textAnchor="middle">
             53 mi
           </text>
 
           {/* Segment 2: Pump Station to Injection Site */}
           <line
-            x1="200"
-            y1="200"
-            x2="320"
-            y2="420"
+            x1="460"
+            y1="100"
+            x2="680"
+            y2="100"
             stroke={highlightNode === 'segment2' ? '#e57373' : '#9CA3AF'}
             strokeWidth={highlightNode === 'segment2' ? '6' : '4'}
             strokeDasharray={highlightNode === 'segment2' ? '0' : '8,4'}
             markerEnd="url(#arrowhead)"
           />
-          <text x="240" y="300" fill="#374151" fontSize="12" fontWeight="bold">
+          <text x="550" y="80" fill="#374151" fontSize="12" fontWeight="bold" textAnchor="middle">
             Pipeline #2
           </text>
-          <text x="245" y="315" fill="#6B7280" fontSize="11">
+          <text x="550" y="95" fill="#6B7280" fontSize="11" textAnchor="middle">
             53 mi
           </text>
 
           {/* Capture Plant */}
-          <g transform="translate(80, 80)">
+          <g transform="translate(80, 100)">
             <circle
               r="20"
               fill={highlightNode === 'capture' ? '#1e7b7d' : '#8B7564'}
@@ -65,15 +65,15 @@ export function TransportNetworkMap({ highlightNode }: TransportNetworkMapProps)
             />
             <circle r="22" fill="none" stroke={highlightNode === 'capture' ? '#1e7b7d' : 'transparent'} strokeWidth="3" opacity="0.5" />
           </g>
-          <text x="80" y="115" textAnchor="middle" fill="#1F2937" fontSize="11" fontWeight="bold">
+          <text x="80" y="140" textAnchor="middle" fill="#1F2937" fontSize="11" fontWeight="bold">
             Capture Plant
           </text>
-          <text x="80" y="128" textAnchor="middle" fill="#6B7280" fontSize="10">
+          <text x="80" y="153" textAnchor="middle" fill="#6B7280" fontSize="10">
             Outlet
           </text>
 
           {/* Pump Station */}
-          <g transform="translate(200, 200)">
+          <g transform="translate(400, 100)">
             <rect
               x="-18"
               y="-18"
@@ -97,15 +97,15 @@ export function TransportNetworkMap({ highlightNode }: TransportNetworkMapProps)
               opacity="0.5"
             />
           </g>
-          <text x="200" y="235" textAnchor="middle" fill="#1F2937" fontSize="11" fontWeight="bold">
+          <text x="400" y="140" textAnchor="middle" fill="#1F2937" fontSize="11" fontWeight="bold">
             Pump Station #1
           </text>
-          <text x="200" y="248" textAnchor="middle" fill="#6B7280" fontSize="10">
+          <text x="400" y="153" textAnchor="middle" fill="#6B7280" fontSize="10">
             Compression
           </text>
 
           {/* Injection Site */}
-          <g transform="translate(320, 420)">
+          <g transform="translate(720, 100)">
             <polygon
               points="0,-22 21,11 -21,11"
               fill={highlightNode === 'injection' ? '#1e7b7d' : '#8B7564'}
@@ -121,36 +121,33 @@ export function TransportNetworkMap({ highlightNode }: TransportNetworkMapProps)
               opacity="0.5"
             />
           </g>
-          <text x="320" y="455" textAnchor="middle" fill="#1F2937" fontSize="11" fontWeight="bold">
+          <text x="720" y="140" textAnchor="middle" fill="#1F2937" fontSize="11" fontWeight="bold">
             Injection Site
           </text>
-          <text x="320" y="468" textAnchor="middle" fill="#6B7280" fontSize="10">
+          <text x="720" y="153" textAnchor="middle" fill="#6B7280" fontSize="10">
             Outlet
           </text>
 
           {/* Legend */}
-          <g transform="translate(20, 450)">
+          <g transform="translate(300, 180)">
             <text x="0" y="0" fill="#6B7280" fontSize="10" fontWeight="bold">
-              Total Distance: 106 mi
-            </text>
-            <text x="0" y="15" fill="#6B7280" fontSize="9">
-              16" internal diameter
+              Total Distance: 106 mi | 16" internal diameter
             </text>
           </g>
         </svg>
 
         {/* Location Icons Overlay (using Heroicons) */}
-        <div className="absolute top-[10%] left-[15%] -translate-x-1/2 -translate-y-1/2">
+        <div className="absolute top-[50%] left-[10%] -translate-x-1/2 -translate-y-1/2">
           <BuildingOffice2Icon
             className={`h-6 w-6 ${highlightNode === 'capture' ? 'text-envana-teal' : 'text-envana-brown-light'}`}
           />
         </div>
-        <div className="absolute top-[36%] left-[47%] -translate-x-1/2 -translate-y-1/2">
+        <div className="absolute top-[50%] left-[50%] -translate-x-1/2 -translate-y-1/2">
           <CircleStackIcon
             className={`h-6 w-6 ${highlightNode === 'pump' ? 'text-envana-teal' : 'text-envana-brown-light'}`}
           />
         </div>
-        <div className="absolute top-[80%] left-[77%] -translate-x-1/2 -translate-y-1/2">
+        <div className="absolute top-[50%] left-[90%] -translate-x-1/2 -translate-y-1/2">
           <MapPinIcon
             className={`h-6 w-6 ${highlightNode === 'injection' ? 'text-envana-teal' : 'text-envana-brown-light'}`}
           />
