@@ -16,126 +16,70 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   const location = useLocation()
-  const [expandedSections, setExpandedSections] = useState<string[]>(['ccs'])
-
-  const toggleSection = (section: string) => {
-    setExpandedSections(prev =>
-      prev.includes(section)
-        ? prev.filter(s => s !== section)
-        : [...prev, section]
-    )
-  }
 
   const isActive = (path: string) => location.pathname === path
   const isInSection = (paths: string[]) => paths.some(path => location.pathname.startsWith(path))
 
   return (
-    <div className="flex h-screen bg-envana-cream">
+    <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
-      <aside className="w-64 bg-envana-sidebar flex flex-col shadow-lg">
+      <aside className="w-64 bg-white flex flex-col shadow-lg border-r border-gray-200">
         {/* Logo Section */}
-        <div className="p-6 border-b border-envana-sidebar-hover">
-          <Link to="/" className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-envana-teal to-envana-coral rounded-full flex items-center justify-center">
+        <div className="p-4 border-b border-gray-200">
+          <Link to="/" className="flex items-center justify-between pl-4 pr-0 py-0 rounded-full border-2 border-orange-400 hover:border-orange-500 transition-colors">
+            <h1 className="text-base font-semibold text-gray-800">Coastal Bend</h1>
+            <div className="w-12 h-12 bg-gradient-to-br from-red-400 via-teal-400 to-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
               <SparklesIcon className="h-6 w-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-lg font-bold text-envana-brown">Coastal Bend</h1>
-              <p className="text-xs text-envana-brown-light">CCS Platform</p>
             </div>
           </Link>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 overflow-y-auto py-4">
-          {/* CCS Dashboard */}
+        <nav className="flex-1 overflow-y-auto py-4 space-y-1">
+          {/* Cargo Dashboard - Placeholder */}
+          <button className="w-full text-left block px-6 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+            Cargo Dashboard
+          </button>
+
+          {/* Carbon Capture & Sequestration - Active Link */}
           <Link
             to="/"
-            className={`block px-6 py-3 text-sm font-medium transition-colors ${
-              isActive('/')
-                ? 'text-envana-brown bg-envana-sidebar-hover'
-                : 'text-envana-brown-light hover:bg-envana-sidebar-hover hover:text-envana-brown'
+            className={`block px-6 py-3 text-base font-medium transition-colors ${
+              isActive('/') || location.pathname === '/'
+                ? 'text-orange-600 bg-orange-50'
+                : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
             }`}
           >
-            <div className="flex items-center">
-              <HomeIcon className="h-5 w-5 mr-3" />
-              CCS Dashboard
-            </div>
+            Carbon Capture & Sequestration
           </Link>
 
-          {/* Abatement Section */}
-          <div className="mt-4">
-            <button
-              onClick={() => toggleSection('ccs')}
-              className="w-full px-6 py-2 text-xs font-semibold text-envana-brown-light uppercase tracking-wider text-left"
-            >
-              Abatement
-            </button>
+          {/* Emissions Intensity - Placeholder */}
+          <button className="w-full text-left block px-6 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+            Emissions Intensity
+          </button>
 
-            {expandedSections.includes('ccs') && (
-              <div className="space-y-1">
-                <Link
-                  to="/capture"
-                  className={`block px-6 py-2.5 text-sm font-medium transition-colors ${
-                    isActive('/capture') || isInSection(['/capture'])
-                      ? 'text-envana-brown bg-envana-sidebar-active border-l-4 border-envana-coral'
-                      : 'text-envana-brown-light hover:bg-envana-sidebar-hover hover:text-envana-brown pl-7'
-                  }`}
-                >
-                  <div className="flex items-center">
-                    <BeakerIcon className="h-4 w-4 mr-3" />
-                    Carbon Capture
-                  </div>
-                </Link>
-
-                <Link
-                  to="/transport"
-                  className={`block px-6 py-2.5 text-sm font-medium transition-colors ${
-                    isActive('/transport') || isInSection(['/transport'])
-                      ? 'text-envana-brown bg-envana-sidebar-active border-l-4 border-envana-coral'
-                      : 'text-envana-brown-light hover:bg-envana-sidebar-hover hover:text-envana-brown pl-7'
-                  }`}
-                >
-                  <div className="flex items-center">
-                    <SignalIcon className="h-4 w-4 mr-3" />
-                    Transport
-                  </div>
-                </Link>
-
-                <Link
-                  to="/sequestration"
-                  className={`block px-6 py-2.5 text-sm font-medium transition-colors ${
-                    isActive('/sequestration') || isInSection(['/sequestration', '/iot'])
-                      ? 'text-envana-brown bg-envana-sidebar-active border-l-4 border-envana-coral'
-                      : 'text-envana-brown-light hover:bg-envana-sidebar-hover hover:text-envana-brown pl-7'
-                  }`}
-                >
-                  <div className="flex items-center">
-                    <CircleStackIcon className="h-4 w-4 mr-3" />
-                    Storage
-                  </div>
-                </Link>
-              </div>
-            )}
-          </div>
+          {/* Compliance - Placeholder */}
+          <button className="w-full text-left block px-6 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors">
+            Compliance
+          </button>
         </nav>
 
         {/* Bottom Icons */}
-        <div className="p-4 border-t border-envana-sidebar-hover">
+        <div className="p-4 border-t border-gray-200">
           <div className="flex items-center justify-around">
-            <button className="p-2 rounded-full bg-envana-teal text-white hover:bg-envana-teal-dark transition-colors">
+            <button className="p-2 rounded-full bg-gradient-to-br from-orange-500 to-blue-600 text-white hover:opacity-90 transition-opacity">
               <div className="w-8 h-8 flex items-center justify-center text-xs font-bold">
                 FCCM
               </div>
             </button>
-            <button className="p-2 text-envana-brown-light hover:text-envana-brown transition-colors">
-              <SparklesIcon className="h-5 w-5" />
+            <button className="p-2 text-amber-500 hover:text-amber-600 transition-colors">
+              <SparklesIcon className="h-6 w-6" />
             </button>
-            <button className="p-2 text-envana-brown-light hover:text-envana-brown transition-colors">
-              <QuestionMarkCircleIcon className="h-5 w-5" />
+            <button className="p-2 text-orange-500 hover:text-orange-600 transition-colors">
+              <QuestionMarkCircleIcon className="h-6 w-6" />
             </button>
-            <button className="p-2 text-envana-brown-light hover:text-envana-brown transition-colors">
-              <UserCircleIcon className="h-5 w-5" />
+            <button className="p-2 text-gray-600 hover:text-gray-800 transition-colors">
+              <UserCircleIcon className="h-6 w-6" />
             </button>
           </div>
         </div>

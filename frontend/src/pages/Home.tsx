@@ -12,7 +12,7 @@ export function Home() {
     <div className="space-y-8">
       {/* Page Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-4xl font-bold text-gray-900">Carbon Capture & Storage</h1>
+        <h1 className="text-4xl font-bold text-gray-900">Carbon Capture & Sequestration</h1>
         <button className="flex items-center space-x-2 bg-gradient-to-r from-envana-coral to-envana-coral-light hover:from-envana-coral-dark hover:to-envana-coral text-white px-6 py-3 rounded-lg font-medium shadow-md transition-all">
           <span className="text-xl">+</span>
           <span>CCS PROJECT</span>
