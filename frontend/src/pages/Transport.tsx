@@ -3,7 +3,6 @@ import { transportNodes, type TransportNode } from '../lib/mock-data/transport-n
 import { generateInjectionSiteOutletTimeSeries } from '../lib/mock-data/transport-dashboard-data'
 import {
   CheckCircleIcon,
-  ArrowDownIcon,
   ChartBarIcon,
   SignalIcon,
 } from '@heroicons/react/24/outline'

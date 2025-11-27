@@ -2,8 +2,6 @@ import { useState, useMemo } from 'react'
 import { injectorWells, monitoringWells } from '../lib/mock-data/wells'
 import { generateMockTimeSeries } from '../lib/mock-data/injector-data'
 import {
-  ChevronRightIcon,
-  DocumentTextIcon,
   CheckCircleIcon,
   WrenchScrewdriverIcon
 } from '@heroicons/react/24/outline'
