@@ -1,14 +1,9 @@
 import { Link, useLocation } from 'react-router-dom'
 import {
-  HomeIcon,
-  BeakerIcon,
-  CircleStackIcon,
   QuestionMarkCircleIcon,
   UserCircleIcon,
   SparklesIcon,
 } from '@heroicons/react/24/outline'
-import { SignalIcon } from '@heroicons/react/24/solid'
-import { useState } from 'react'
 
 interface LayoutProps {
   children: React.ReactNode
