@@ -1,5 +1,3 @@
-import { MapPinIcon, BuildingOffice2Icon, CircleStackIcon } from '@heroicons/react/24/solid'
-
 interface TransportNetworkMapProps {
   highlightNode?: 'capture' | 'segment1' | 'pump' | 'segment2' | 'injection'
 }
