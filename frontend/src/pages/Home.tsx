@@ -97,7 +97,7 @@ export function Home() {
           </div>
         </Link>
 
-        {/* CO2 Sequestration */}
+        {/* CO2 Storage */}
         <Link
           to="/sequestration"
           className="bg-white rounded-lg shadow-sm p-8 hover:shadow-md transition-all group cursor-pointer border border-gray-200 hover:border-envana-teal"
@@ -107,7 +107,7 @@ export function Home() {
               <CircleStackIcon className="h-16 w-16 text-envana-teal" />
             </div>
             <h3 className="mt-6 text-2xl font-bold text-envana-brown group-hover:text-envana-teal transition-colors">
-              CO₂ SEQUESTRATION
+              CO₂ STORAGE
             </h3>
             <p className="mt-3 text-gray-600">
               Manage injection and monitoring well operations
