@@ -36,7 +36,7 @@ export function Layout({ children }: LayoutProps) {
             Cargo Dashboard
           </button>
 
-          {/* Carbon Capture & Sequestration - Active Link */}
+          {/* Carbon Capture & Storage - Active Link */}
           <Link
             to="/"
             className={`block px-6 py-3 text-base font-medium transition-colors ${
@@ -45,7 +45,7 @@ export function Layout({ children }: LayoutProps) {
                 : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900'
             }`}
           >
-            Carbon Capture & Sequestration
+            Carbon Capture & Storage
           </Link>
 
           {/* Emissions Intensity - Placeholder */}
