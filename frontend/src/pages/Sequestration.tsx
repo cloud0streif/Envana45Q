@@ -79,79 +79,92 @@ export function Sequestration() {
         </div>
       </div>
 
-      {/* Injection Wells */}
-      <div className="bg-white rounded-lg shadow-sm p-8 border border-gray-200">
-        <h2 className="text-2xl font-bold text-envana-brown mb-6">INJECTION OPERATIONS</h2>
-        <p className="text-gray-600 mb-6">Select an injector well to view its performance dashboard:</p>
+      {/* Well Selection - Split Layout */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Injection Wells Section */}
+        <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+          <div className="flex items-center space-x-2 mb-4">
+            <div className="w-1 h-6 bg-envana-teal rounded"></div>
+            <h2 className="text-xl font-bold text-envana-brown">INJECTION WELLS</h2>
+          </div>
+          <p className="text-gray-600 text-sm mb-4">Select an injector well to view its dashboard</p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {injectorWells.map((well) => (
-            <div
-              key={well.well_id}
-              onClick={() => handleWellClick('injector', well.well_id)}
-              className={`border-2 rounded-lg p-6 transition-all cursor-pointer ${
-                selectedWell?.type === 'injector' && selectedWell?.id === well.well_id
-                  ? 'border-envana-teal bg-envana-sidebar shadow-lg'
-                  : 'border-gray-200 hover:border-envana-teal hover:shadow-lg bg-white'
-              }`}
-            >
-              <div className="flex items-center space-x-3 mb-4">
-                {well.status === 'operational' ? (
-                  <CheckCircleIcon className="h-8 w-8 text-green-500" />
-                ) : (
-                  <WrenchScrewdriverIcon className="h-8 w-8 text-amber-500" />
-                )}
-                <h3 className="text-xl font-bold text-envana-brown">{well.well_name}</h3>
-              </div>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="bg-white rounded p-3 border border-gray-200">
-                  <p className="text-gray-500 mb-1">Status</p>
-                  <p className={`font-semibold ${well.status === 'operational' ? 'text-green-600' : 'text-amber-600'}`}>
-                    {well.status.charAt(0).toUpperCase() + well.status.slice(1)}
-                  </p>
+          <div className="grid grid-cols-2 gap-3">
+            {injectorWells.map((well) => (
+              <div
+                key={well.well_id}
+                onClick={() => handleWellClick('injector', well.well_id)}
+                className={`border-2 rounded-lg p-4 transition-all cursor-pointer ${
+                  selectedWell?.type === 'injector' && selectedWell?.id === well.well_id
+                    ? 'border-envana-teal bg-envana-sidebar shadow-lg'
+                    : 'border-gray-200 hover:border-envana-teal hover:shadow-md bg-white'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center space-x-2">
+                    {well.status === 'operational' ? (
+                      <CheckCircleIcon className="h-5 w-5 text-green-500" />
+                    ) : (
+                      <WrenchScrewdriverIcon className="h-5 w-5 text-amber-500" />
+                    )}
+                  </div>
                 </div>
-                <div className="bg-white rounded p-3 border border-gray-200">
-                  <p className="text-gray-500 mb-1">Current Rate</p>
-                  <p className="font-semibold text-gray-900">{well.current_rate_tpd} t/day</p>
+                <h3 className="text-base font-bold text-envana-brown mb-3">{well.well_name}</h3>
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Status:</span>
+                    <span className={`font-semibold ${well.status === 'operational' ? 'text-green-600' : 'text-amber-600'}`}>
+                      {well.status.charAt(0).toUpperCase() + well.status.slice(1)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Rate:</span>
+                    <span className="font-semibold text-gray-900">{well.current_rate_tpd} t/day</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
 
-      {/* Monitoring Wells */}
-      <div className="bg-white rounded-lg shadow-sm p-8 border border-gray-200">
-        <h2 className="text-2xl font-bold text-envana-brown mb-6">MONITORING OPERATIONS</h2>
-        <p className="text-gray-600 mb-6">Select a monitoring well to view its performance dashboard:</p>
+        {/* Monitoring Wells Section */}
+        <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+          <div className="flex items-center space-x-2 mb-4">
+            <div className="w-1 h-6 bg-envana-coral rounded"></div>
+            <h2 className="text-xl font-bold text-envana-brown">MONITORING WELLS</h2>
+          </div>
+          <p className="text-gray-600 text-sm mb-4">Select a monitoring well to view its dashboard</p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {monitoringWells.map((well) => (
-            <div
-              key={well.well_id}
-              onClick={() => handleWellClick('monitoring', well.well_id)}
-              className={`border-2 rounded-lg p-6 transition-all cursor-pointer ${
-                selectedWell?.type === 'monitoring' && selectedWell?.id === well.well_id
-                  ? 'border-envana-coral bg-envana-sidebar shadow-lg'
-                  : 'border-gray-200 hover:border-envana-coral hover:shadow-lg bg-white'
-              }`}
-            >
-              <div className="flex items-center space-x-3 mb-4">
-                <CheckCircleIcon className="h-8 w-8 text-green-500" />
-                <h3 className="text-xl font-bold text-envana-brown">{well.well_name}</h3>
-              </div>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="bg-white rounded p-3 border border-gray-200">
-                  <p className="text-gray-500 mb-1">Type</p>
-                  <p className="font-semibold text-gray-900">{well.monitoring_type}</p>
+          <div className="grid grid-cols-2 gap-3">
+            {monitoringWells.map((well) => (
+              <div
+                key={well.well_id}
+                onClick={() => handleWellClick('monitoring', well.well_id)}
+                className={`border-2 rounded-lg p-4 transition-all cursor-pointer ${
+                  selectedWell?.type === 'monitoring' && selectedWell?.id === well.well_id
+                    ? 'border-envana-coral bg-envana-sidebar shadow-lg'
+                    : 'border-gray-200 hover:border-envana-coral hover:shadow-md bg-white'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center space-x-2">
+                    <CheckCircleIcon className="h-5 w-5 text-green-500" />
+                  </div>
                 </div>
-                <div className="bg-white rounded p-3 border border-gray-200">
-                  <p className="text-gray-500 mb-1">Last Reading</p>
-                  <p className="font-semibold text-gray-900">{well.last_reading}</p>
+                <h3 className="text-base font-bold text-envana-brown mb-3">{well.well_name}</h3>
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Type:</span>
+                    <span className="font-semibold text-gray-900">{well.monitoring_type}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Reading:</span>
+                    <span className="font-semibold text-gray-900">{well.last_reading}</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
 
