@@ -21,11 +21,8 @@ export function Layout({ children }: LayoutProps) {
       <aside className="w-64 bg-white flex flex-col shadow-lg border-r border-gray-200">
         {/* Logo Section */}
         <div className="p-4 border-b border-gray-200">
-          <Link to="/" className="flex items-center justify-between pl-4 pr-0 py-0 rounded-full border-2 border-orange-400 hover:border-orange-500 transition-colors">
-            <h1 className="text-base font-semibold text-gray-800">Coastal Bend</h1>
-            <div className="w-12 h-12 bg-gradient-to-br from-red-400 via-teal-400 to-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
-              <SparklesIcon className="h-6 w-6 text-white" />
-            </div>
+          <Link to="/" className="flex items-center justify-center">
+            <img src="/Logo.png" alt="Coastal Bend Logo" className="h-16 w-auto object-contain" />
           </Link>
         </div>
 
