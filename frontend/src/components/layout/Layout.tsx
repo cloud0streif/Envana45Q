@@ -65,13 +65,13 @@ export function Layout({ children }: LayoutProps) {
                 FCCM
               </div>
             </button>
-            <button className="p-2 text-amber-500 hover:text-amber-600 transition-colors">
+            <button className="p-2 text-orange-500 hover:text-orange-600 transition-colors">
               <SparklesIcon className="h-6 w-6" />
             </button>
             <button className="p-2 text-orange-500 hover:text-orange-600 transition-colors">
               <QuestionMarkCircleIcon className="h-6 w-6" />
             </button>
-            <button className="p-2 text-gray-600 hover:text-gray-800 transition-colors">
+            <button className="p-2 text-orange-500 hover:text-orange-600 transition-colors">
               <UserCircleIcon className="h-6 w-6" />
             </button>
           </div>
